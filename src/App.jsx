@@ -13,7 +13,6 @@ const Artist   = lazy(() => import('./pages/Artist'))
 const Login    = lazy(() => import('../src/auth/Login'))
 const SignUp   = lazy(() => import('../src/auth/SignUp'))
 const NotFound = lazy(() => import('./pages/NotFound'))
-// ✅ NEW: Liked Songs page
 const LikedSongs = lazy(() => import('./pages/LikedSongs'))
 
 const Fallback = () => (
@@ -43,7 +42,6 @@ export default function App() {
             <Route path="/playlist/:id"      element={<Playlist />} />
             <Route path="/album/:id"         element={<Album />} />
             <Route path="/artist/:id"        element={<Artist />} />
-            {/* ✅ Liked Songs — ab properly kaam karega */}
             <Route path="/collection/tracks" element={<LikedSongs />} />
           </Route>
 

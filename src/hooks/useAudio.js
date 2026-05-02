@@ -3,6 +3,7 @@ import usePlayerStore from '../store/usePlayerStore'
 
 const API_BASE = 'https://musicapi.x007.workers.dev'
 
+// Stream URL fetch karo song ID se
 export const fetchStreamUrl = async (songId) => {
   try {
     const res = await fetch(`${API_BASE}/fetch?id=${songId}`)
@@ -21,6 +22,7 @@ const useAudio = () => {
     isPlaying,
     volume,
     isMuted,
+    progress,
     repeat,
     setProgress,
     setDuration,
@@ -28,7 +30,7 @@ const useAudio = () => {
     playNext,
   } = usePlayerStore()
 
-  // ✅ FIX: audioUrl null ho toh apiId se fetch karo (queue ke baaki songs ke liye)
+  // Load new song — agar audioUrl nahi hai toh API se fetch karo
   useEffect(() => {
     if (!currentSong) return
     const audio = audioRef.current
@@ -36,26 +38,27 @@ const useAudio = () => {
     const loadAndPlay = async () => {
       let url = currentSong.audioUrl
 
-      // Queue mein next song ka audioUrl null hoga — fetch karo
-      if (!url && currentSong.apiId) {
+      // Agar song mein apiId hai (real API song) toh stream URL fetch karo
+      if (currentSong.apiId) {
         url = await fetchStreamUrl(currentSong.apiId)
       }
 
       if (!url) {
-        console.error('Audio URL nahi mili:', currentSong.title)
-        setIsPlaying(false)
+        console.error('No audio URL found for this song')
         return
       }
 
       audio.src = url
       audio.load()
-      audio.play().catch(() => setIsPlaying(false))
+      if (isPlaying) {
+        audio.play().catch(() => setIsPlaying(false))
+      }
     }
 
     loadAndPlay()
   }, [currentSong?.id])
 
-  // Play / Pause
+  // Play / pause
   useEffect(() => {
     const audio = audioRef.current
     if (!currentSong) return
@@ -71,7 +74,7 @@ const useAudio = () => {
     audioRef.current.volume = isMuted ? 0 : volume
   }, [volume, isMuted])
 
-  // Events
+  // Time update / ended
   useEffect(() => {
     const audio = audioRef.current
     const onTimeUpdate = () => setProgress(audio.currentTime)
