@@ -3,7 +3,7 @@ import usePlayerStore from '../store/usePlayerStore'
 
 const API_BASE = 'https://musicapi.x007.workers.dev'
 
-// Stream URL fetch karo song ID se
+// Fetch stream URL from song ID
 export const fetchStreamUrl = async (songId) => {
   try {
     const res = await fetch(`${API_BASE}/fetch?id=${songId}`)
@@ -30,7 +30,7 @@ const useAudio = () => {
     playNext,
   } = usePlayerStore()
 
-  // Load new song — agar audioUrl nahi hai toh API se fetch karo
+  // Load new song — if audioUrl is not available then fetch from API
   useEffect(() => {
     if (!currentSong) return
     const audio = audioRef.current
@@ -38,7 +38,7 @@ const useAudio = () => {
     const loadAndPlay = async () => {
       let url = currentSong.audioUrl
 
-      // Agar song mein apiId hai (real API song) toh stream URL fetch karo
+      // If song has apiId (real API song) then fetch stream URL
       if (currentSong.apiId) {
         url = await fetchStreamUrl(currentSong.apiId)
       }
