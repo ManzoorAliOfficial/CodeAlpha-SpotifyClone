@@ -13,16 +13,15 @@ const Artist   = lazy(() => import('./pages/Artist'))
 const Login    = lazy(() => import('../src/auth/Login'))
 const SignUp   = lazy(() => import('../src/auth/SignUp'))
 const NotFound = lazy(() => import('./pages/NotFound'))
+// ✅ NEW: Liked Songs page
+const LikedSongs = lazy(() => import('./pages/LikedSongs'))
 
 const Fallback = () => (
   <div className="flex items-center justify-center h-screen bg-[#121212]">
-    <div className="flex flex-col items-center gap-4">
-      <div className="w-12 h-12 border-3 border-[#1DB954] border-t-transparent rounded-full animate-spin" />
-    </div>
+    <div className="w-12 h-12 border-3 border-[#1DB954] border-t-transparent rounded-full animate-spin" />
   </div>
 )
 
-// Auth route — agar already logged in hai toh home pe bhejo
 const AuthRoute = ({ children }) => {
   const { isLoggedIn } = useAuthStore()
   if (isLoggedIn) return <Navigate to="/" replace />
@@ -34,31 +33,21 @@ export default function App() {
     <BrowserRouter>
       <Suspense fallback={<Fallback />}>
         <Routes>
+          <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
+          <Route path="/signup" element={<AuthRoute><SignUp /></AuthRoute>} />
 
-          {/* Auth routes — logged in hoga toh / pe redirect */}
-          <Route path="/login" element={
-            <AuthRoute><Login /></AuthRoute>
-          } />
-          <Route path="/signup" element={
-            <AuthRoute><SignUp /></AuthRoute>
-          } />
-
-          {/* Protected routes — logged out hoga toh /login pe redirect */}
-          <Route element={
-            <ProtectedRoute><Layout /></ProtectedRoute>
-          }>
+          <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route path="/"                  element={<Home />} />
             <Route path="/search"            element={<Search />} />
             <Route path="/library"           element={<Library />} />
             <Route path="/playlist/:id"      element={<Playlist />} />
             <Route path="/album/:id"         element={<Album />} />
             <Route path="/artist/:id"        element={<Artist />} />
-            <Route path="/collection/tracks" element={<Playlist />} />
+            {/* ✅ Liked Songs — ab properly kaam karega */}
+            <Route path="/collection/tracks" element={<LikedSongs />} />
           </Route>
 
-          {/* 404 - Not Found */}
           <Route path="*" element={<NotFound />} />
-
         </Routes>
       </Suspense>
     </BrowserRouter>
